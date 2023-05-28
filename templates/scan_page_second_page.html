@@ -24,18 +24,21 @@
     <div class="container">
       <div class="navbar-translate">
         <div class="navbar-brand">
-          Participant Manager
+          <H2>CHECK IN/ CHECK OUT</H2>
         </div>
       </div>
     </div>
   </nav>
+
+
+
   <div class="page-header header-filter" style="background-image: url('../static/img/desk_chair1.jpg'); background-size: cover; background-position: top center;">
     <div class="container">
       <div class="row">
         <div class="col-lg-4 col-md-6 col-sm-8 ml-auto mr-auto">
         </div>
         <form class="form" method="POST", action="/scan_barcode">
-          <button onclick="callFlaskFunction()" class="btn btn-danger btn-raised btn-lg">Scan</button>
+          <button type="submit" class="btn btn-danger btn-raised btn-lg">Scan</button>
           <script>
             function callFlaskFunction() {
                 var xhr = new XMLHttpRequest();
@@ -52,14 +55,12 @@
     </form>
 
           <form class="form" method="POST" action="/scan_update">
-            <div class="card card-login">
-              <h2 class="card-title text-center">CHECK IN</h2>
+              <h2 class="card-title text-center text-info">{{ student_name }}</h2>
               <!-- <div class="social-line">
                 <a href="#pablo" class="btn btn-just-icon btn-link btn-white">
                   <i class="fa fa-google-plus"></i>
                 </a>
               </div> -->
-              <div class="card-body ">
                 {% with messages = get_flashed_messages() %}
                   {% if messages: %}
                     {% for message in messages: %}
@@ -67,8 +68,21 @@
                     {% endfor %}
                   {% endif %}
                 {% endwith %}
+              
+                
 
-                <span class="bmd-form-group">
+                      <div class="justify-content-center">
+                      <select class="form-select form-select-lg border-0 mb-1 px-4 py-4 " aria-label="form-select-lg example" name="status">
+                        <option selected>Select the Status of the Participant</option>
+                        <option class="dropdown-item" value="IN">IN</option>
+                        <option class="dropdown-item" value="OUT">OUT</option>
+                      </select>
+                    </div>
+
+                
+
+
+                <!-- <span class="bmd-form-group">
                   <div class="input-group" style="display: flex; flex-direction: column;">
                     <div class="input-group-prepend">
                       <span class="input-group-text">
@@ -82,14 +96,17 @@
                       </select>
                     </div>
                   </div>
-                </span>
+                </span> -->
 
-              <div class="card-footer justify-content-center">
+              <div class="justify-content-center">
                 <button type="submit" class="btn btn-danger btn-raised btn-lg">Submit</button>
               </div>
-            </div>
-          </form>
-          <div class="card card-login card-hidden text-center">
+            </form>
+            
+            <form action="/scan_barcode" method="GET">
+              <button type="submit" class="btn btn-danger btn-raised btn-lg">Back</button>
+            </form>
+          </div>
             <!-- <div style="padding-top: 7px;">
               <label>Not registered?</label>
               <a href="/student_signup" style="color: #f44336; ">Sign Up</a>
@@ -97,9 +114,8 @@
               <label>Forgot password?</label>
               <a href="/forgot_password" style="color: #f44336;">Click here</a>
             </div> -->
-            <form action="/barcode_reader" method="GET">
-              <button type="submit" class="btn btn-danger btn-raised btn-lg">Back</button>
-            </form>
+            
+            
           </div>
         </div>
       </div>

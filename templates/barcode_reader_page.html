@@ -24,7 +24,7 @@
     <div class="container">
       <div class="navbar-translate">
         <div class="navbar-brand">
-          Attendance Management
+          <h2>MASTER CHECK IN</h2>
         </div>
       </div>
     </div>
@@ -33,10 +33,10 @@
     <p>{{ message }}</p>
     <div class="container">
       <div class="row">
-        <div class="col-lg-4 col-md-6 col-sm-8 ml-auto mr-auto">
+        <div class="row-lg-4 row-md-6 row-sm-8 ml-auto mr-auto">
 
           <form class="form" method="POST", action="/barcode_reader">
-                <button onclick="callFlaskFunction()" class="btn btn-danger btn-raised btn-lg">Scan</button>
+                <button type="submit" class="btn btn-danger btn-raised btn-lg">Scan</button>
                 <script>
                   function callFlaskFunction() {
                       var xhr = new XMLHttpRequest();
@@ -49,12 +49,12 @@
                       xhr.send();
                   }
               </script>
-            </div>
-          </form>
-
-          <form action="/" method="GET">
-            <button type="submit" class="btn btn-danger btn-raised btn-lg">Back</button>
-          </form>
+            </form>
+            
+            <form action="/" method="GET">
+              <button type="submit" class="btn btn-danger btn-raised btn-lg">Back</button>
+            </form>
+          </div>
         </div>
       </div>
     </div>

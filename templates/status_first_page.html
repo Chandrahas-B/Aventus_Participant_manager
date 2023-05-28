@@ -20,13 +20,13 @@
   
 {% block body %}
 <body class="login-page sidebar-collapse">
-    <!-- <nav class="navbar navbar-color-on-scroll navbar-transparent    fixed-top  navbar-expand-lg " color-on-scroll="100" id="sectionsNav">
+    <nav class="navbar navbar-color-on-scroll navbar-transparent    fixed-top  navbar-expand-lg " color-on-scroll="100" id="sectionsNav">
         <div class="container">
           <div class="navbar-translate">
             <div class="navbar-brand">
-              Attendance Management
+              <H2>CURRENT STATUS</H2>
             </div>
-          </div>
+          <!-- </div>
           <form action="teacher_home" method="GET">
             <button type="submit" class="btn btn-danger btn-raised btn-lg">Home</button>
           </form>
@@ -39,8 +39,8 @@
           <form action="/logout" method="GET">
             <button type="submit" class="btn btn-danger btn-raised btn-lg">Log Out</button>
           </form>
-        </div>
-      </nav> -->
+        </div> -->
+      </nav>
   <div class="page-header header-filter" style="background-image: url('../static/img/desk_chair1.jpg'); background-size: cover; background-position: top center;">
     <div class="container">
       <div class="row">
@@ -78,14 +78,14 @@
                       <span class="input-group-text">
                         Track
                       </span>
+                      <select class="form-select form-select-lg" aria-label="form-select-lg example" id="track" name="track">
+                        <option class="dropdown-item" value="AI&ML">AI&ML</option>
+                        <option class="dropdown-item" value="IoT">IOT</option>
+                        <option class="dropdown-item" value="Open Innovation">Open Innovation</option>
+                        <option class="dropdown-item" value="Web3">Web3</option>
+                      </select>
                     </div>
                     <div>
-                      <select id="track" name="track">
-                        <option value="AI&ML">AI&ML</option>
-                        <option value="IoT">IOT</option>
-                        <option value="Open Innovation">Open Inocation</option>
-                        <option value="Web3">Web3</option>
-                      </select>
                     </div>
                   </div>
                 </span>

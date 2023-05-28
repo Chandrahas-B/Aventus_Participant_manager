@@ -58,6 +58,7 @@ def barcode_reader():
         return render_template('barcode_reader_page.html')
     
     elif request.method=='POST':
+
         team_member_id=open_camera()
         lock.acquire()
         lock.release()
@@ -141,8 +142,24 @@ def scan_barcode():
         # team_member_id=open_camera()
         # while team_member_id==None:
         #     pass
-        session['team_member_id']=team_member_id
-        return render_template('scan_page_second_page.html')
+        participant_row=g.df.loc[g.df['UID']==team_member_id]
+        team_id=team_member_id[0:len(team_member_id)-3]
+        track=participant_row.at[participant_row.index[0], 'Project Tracks']
+        team_member=str(participant_row.at[participant_row.index[0], 'First Name']+' '+participant_row.at[participant_row.index[0], 'Last Name'])
+
+        check=db.collection(track).document(team_id)
+        team_member_temp=check.collections()
+        team_members=[]
+        for i in team_member_temp:
+            team_members.append(i.id)
+        if team_member_id in team_members:
+            session['team_member_id']=team_member_id
+            return render_template('scan_page_second_page.html', student_name=team_member)
+        else:
+            message='Participant not checked in'
+            return render_template('scan_page_first_page.html', message=message)
+
+
 
 @app.route('/scan_update', methods=['POST'])
 def scan_update():

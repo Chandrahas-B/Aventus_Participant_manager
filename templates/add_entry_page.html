@@ -35,7 +35,7 @@
         <div class="col-lg-4 col-md-6 col-sm-8 ml-auto mr-auto">
         </div>
         <form class="form" method="POST", action="/barcode_reader">
-          <button onclick="callFlaskFunction()" class="btn btn-danger btn-raised btn-lg">Scan</button>
+          <button type="submit" class="btn btn-danger btn-raised btn-lg">Scan</button>
           <script>
             function callFlaskFunction() {
                 var xhr = new XMLHttpRequest();
@@ -53,7 +53,7 @@
 
           <form class="form" method="POST" action="/add_entry">
             <div class="card card-login">
-              <h2 class="card-title text-center">Check IN</h2>
+              <h2 class="card-title text-center">Master Check IN</h2>
               <!-- <div class="social-line">
                 <a href="#pablo" class="btn btn-just-icon btn-link btn-white">
                   <i class="fa fa-google-plus"></i>
@@ -137,11 +137,11 @@
                   <div class="input-group" style="display: flex; flex-direction: column;">
                     <div class="input-group-prepend">
                       <span class="input-group-text">
-                       Collge ID Card Verification
+                       Collge ID Card Verification  
+                       <input style="width: 40px; height: 25px;" type="checkbox" id="college_id" name="college_id" value="college_id">
                       </span>
                     </div>
                     <div>
-                      <input style="width: 90%; margin-left: 15px;" type="checkbox" id="college_id" name="college_id" value="college_id">
                       <!-- <input style="width: 90%; margin-left: 15px;" name="gender" value="{{ text[4] }}" type="text" class="form-control" placeholder="gender" required> -->
                     </div>
                   </div>
@@ -153,9 +153,9 @@
                       <span class="input-group-text">
                        Consent Form Verification
                       </span>
+                      <input style="width: 25px; height: 25px;" type="checkbox" id="consent_form" name="consent_form" value="consnet_form">
                     </div>
                     <div>
-                      <input style="width: 90%; margin-left: 15px;" type="checkbox" id="consent_form" name="consent_form" value="consnet_form">
 
                       <!-- <input style="width: 90%; margin-left: 15px;" name="gender" value="{{ text[4] }}" type="text" class="form-control" placeholder="gender" required> -->
                     </div>
