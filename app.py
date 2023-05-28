@@ -72,7 +72,16 @@ def barcode_reader():
         team_name=participant_row.at[participant_row.index[0], 'Team Name']
         team_member=str(participant_row.at[participant_row.index[0], 'First Name']+' '+participant_row.at[participant_row.index[0], 'Last Name'])
         gender=participant_row.at[participant_row.index[0], 'Gender']
-        print(team_member_id)
+
+        check=db.collection(track).document(team_id)
+        team_members_id=[]
+        team_members_temp=check.collections()
+        for m in team_members_temp:
+            team_members_id.append(m.id)
+        if team_member_id in team_members_id:
+            message='Member already registered'
+            return render_template('barcode_reader_page.html', message=message)
+        # print(team_member_id)
         return render_template('add_entry_page.html', text=[team_id, track, team_name, team_member, gender])
 
 
@@ -109,7 +118,7 @@ def add_entry():
             final_consent_form='False'
 
         now = datetime.now()
-        entry_time=now.strftime("%H:%M:%S")
+        entry_time=now.strftime("%d/%m/%Y %H:%M:%S")
 
         db.collection(track).document(team_id).set({
              'team_name':team_name
@@ -174,7 +183,7 @@ def scan_update():
     team_member=str(participant_row.at[participant_row.index[0], 'First Name']+' '+participant_row.at[participant_row.index[0], 'Last Name'])
 
     now = datetime.now()
-    lastseen_time=now.strftime("%H:%M:%S")
+    lastseen_time=now.strftime("%d/%m/%Y %H:%M:%S")
     
     doc=db.collection(track).document(team_id).collection(team_member_id).document(team_member).get()
     count=doc.get('count')
