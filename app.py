@@ -64,7 +64,7 @@ def barcode_reader():
         # team_member_id = None
 
         session['team_member_id']=team_member_id
-        participant_row=g.df.loc[g.df['Team Code']==team_member_id]
+        participant_row=g.df.loc[g.df['UID']==team_member_id]
 
         team_id=team_member_id[0:len(team_member_id)-3]
         track=participant_row.at[participant_row.index[0], 'Project Tracks']
@@ -150,7 +150,7 @@ def scan_update():
     #     return render_template('scan_page.html')
     team_member_id=session['team_member_id']
     status=request.form['status']
-    participant_row=g.df.loc[g.df['Team Code']==team_member_id]
+    participant_row=g.df.loc[g.df['UID']==team_member_id]
     team_id=team_member_id[0:len(team_member_id)-3]
     track=participant_row.at[participant_row.index[0], 'Project Tracks']
     team_name=participant_row.at[participant_row.index[0], 'Team Name']
@@ -201,7 +201,7 @@ def status_all_team_member():
         member_names=[]
         for member in team_members:
             member_ids.append(member)
-            participant_row=g.df.loc[g.df['Team Code']==member]
+            participant_row=g.df.loc[g.df['UID']==member]
             team_member=str(participant_row.at[participant_row.index[0], 'First Name']+' '+participant_row.at[participant_row.index[0], 'Last Name'])
             team_name=participant_row.at[participant_row.index[0], 'Team Name']
             member_names.append(team_member)
