@@ -1,0 +1,219 @@
+from __future__ import division
+from flask import Flask, render_template, url_for, request, redirect, session, flash, g
+import firebase_admin
+from firebase_admin import credentials, firestore
+# import pyrebase
+import cv2
+import zxingcpp
+import sys
+from datetime import datetime
+from read_barcode import open_camera
+import pandas as pd
+
+
+app = Flask(__name__)
+
+app.secret_key = '2' # for flask session
+
+
+# Use a service account
+cred = credentials.Certificate('aventus-website.json')
+firebase_admin.initialize_app(cred)
+
+db = firestore.client()
+
+# pyrebase init
+# Your web app's Firebase configuration
+firebaseConfig = {
+  'apiKey': "AIzaSyDIerahYw7xS6madhWGYuvF2n8A3-VMUkg",
+  'authDomain': "aventus-b0068.firebaseapp.com",
+  'databaseURL': "https://aventus-b0068-default-rtdb.asia-southeast1.firebasedatabase.app",
+  'projectId': "aventus-b0068",
+  'storageBucket': "aventus-b0068.appspot.com",
+  'messagingSenderId': "1004778993565",
+  'appId': "1:1004778993565:web:5ccb91f7a09dede0342174",
+  'measurementId': "G-LEE5266T98"
+}
+
+# firebase = pyrebase.initialize_app(firebaseConfig)
+# auth = firebase.auth()
+
+@app.before_request
+def before_request():
+    g.df=pd.read_csv('teams.csv')
+
+
+
+@app.route('/', methods = ['GET'])
+def home_page():
+        return render_template('home_page.html')
+
+
+
+@app.route('/barcode_reader', methods=['GET', 'POST'])
+def barcode_reader():
+    if request.method=='GET':
+        return render_template('barcode_reader_page.html')
+    
+    elif request.method=='POST':
+        team_member_id=''
+        team_member_id=open_camera()
+        if len(team_member_id)>0:
+            session['team_member_id']=team_member_id
+            participant_row=g.df.loc[g.df['Team Code']==team_member_id]
+
+            team_id=team_member_id[0:len(team_member_id)-3]
+            track=participant_row.at[participant_row.index[0], 'Project Tracks']
+            team_name=participant_row.at[participant_row.index[0], 'Team Name']
+            team_member=str(participant_row.at[participant_row.index[0], 'First Name']+' '+participant_row.at[participant_row.index[0], 'Last Name'])
+            gender=participant_row.at[participant_row.index[0], 'Gender']
+            print(team_member_id)
+            return render_template('add_entry_page.html', text=[team_id, track, team_name, team_member, gender])
+
+
+
+@app.route('/add_entry', methods=['POST'])
+def add_entry():
+    # if request.method=='GET':
+    #      return render_template('add_entry_page.html')
+    
+    if request.method=='POST':
+
+
+        # results=open_camera()
+        # team_member_id=str(results.text)
+        # team_member_id=session[team_member_id]
+
+        team_member_id=session['team_member_id']
+        team_name= request.form['team_name']
+        team_member= request.form['team_member']
+        track=request.form['track']
+        gender=request.form['gender']
+        team_id=request.form['team_id']
+        college_id=request.form.get('college_id')
+        consent_form=request.form.get('consent_form')
+        
+        if college_id:
+            final_college_id='True'
+        else:
+            final_college_id='False'
+        
+        if consent_form:
+            final_consent_form='True'
+        else:
+            final_consent_form='False'
+
+        now = datetime.now()
+        entry_time=now.strftime("%H:%M:%S")
+
+        db.collection(track).document(team_id).set({
+             'team_name':team_name
+        })
+
+        db.collection(track).document(team_id).collection(team_member_id).document(team_member).set({
+             'sign_in_time':entry_time,
+             'gender':gender,
+             'college_id': final_college_id,
+             'consert_form': final_consent_form,
+             'count':0
+        })
+        # flash('Participants successfuly registered.')
+        # return render_template('add_entry.html', text=['team_id_csv', 'track_csv', 'team_name_csv', 'team_member_csv'])
+        message='Participants successfuly registered.'
+        session.clear()
+        return render_template('barcode_reader_page.html',message=message)
+
+
+
+@app.route('/scan_barcode', methods=['GET','POST'])
+def scan_barcode():
+    if request.method=='GET':
+        return render_template('scan_page_first_page.html')
+    elif request.method=='POST':
+        team_member_id=''
+        team_member_id=open_camera()
+        if len(team_member_id)>0:
+            session['team_member_id']=team_member_id
+            return render_template('scan_page_second_page.html')
+
+@app.route('/scan_update', methods=['POST'])
+def scan_update():
+    # if request.method=='':
+    #     return render_template('scan_page.html')
+    team_member_id=session['team_member_id']
+    status=request.form['status']
+    participant_row=g.df.loc[g.df['Team Code']==team_member_id]
+    team_id=team_member_id[0:len(team_member_id)-3]
+    track=participant_row.at[participant_row.index[0], 'Project Tracks']
+    team_name=participant_row.at[participant_row.index[0], 'Team Name']
+    team_member=str(participant_row.at[participant_row.index[0], 'First Name']+' '+participant_row.at[participant_row.index[0], 'Last Name'])
+
+    now = datetime.now()
+    lastseen_time=now.strftime("%H:%M:%S")
+    
+    doc=db.collection(track).document(team_id).collection(team_member_id).document(team_member).get()
+    count=doc.get('count')
+    final_count=count+1
+    last_seen='status'+str(count+1)
+    db.collection(track).document(team_id).collection(team_member_id).document(team_member).update({
+            last_seen:[status, lastseen_time],
+            'count':final_count
+        })
+    session.clear()
+    message='The Status has been updated.'
+    return render_template('scan_page_first_page.html', message=message)
+
+
+
+@app.route('/status_first', methods=['GET', 'POST'])
+def status_first():
+    if request.method=='GET':
+        return render_template('status_first_page.html')
+    elif request.method=='POST':
+        team_id=request.form['team_id']
+        track=request.form['track']
+        session['team_id']=team_id
+        session['track']=track
+        return redirect('/status_all_team_member')
+
+
+
+@app.route('/status_all_team_member', methods=['GET', 'POST'])
+def status_all_team_member():
+    if request.method=='GET':
+        team_id=session['team_id']
+        track=session['track']
+        doc=db.collection(track).document(team_id)
+        team_member_temp=doc.collections()
+        team_members=[]
+        for i in team_member_temp:
+            team_members.append(i.id)
+        all_timings={}
+        member_ids=[]
+        member_names=[]
+        for member in team_members:
+            member_ids.append(member)
+            participant_row=g.df.loc[g.df['Team Code']==member]
+            team_member=str(participant_row.at[participant_row.index[0], 'First Name']+' '+participant_row.at[participant_row.index[0], 'Last Name'])
+            team_name=participant_row.at[participant_row.index[0], 'Team Name']
+            member_names.append(team_member)
+
+            details=db.collection(track).document(team_id).collection(member).document(team_member).get()
+            details=details.to_dict()
+            count=details['count']
+            all_timings[member]=[]
+            for i in range(0, count):
+                status='status'+str(i+1)
+                all_timings[member].append(details[status])
+            count=0
+        session.clear()
+        return render_template('status_all_team_member_page.html', all_timings=all_timings, team_name=team_name, member_ids=member_ids, member_names=member_names)
+
+    
+
+     
+
+
+
+if __name__ == '__main__':
+    app.run(debug = True)
