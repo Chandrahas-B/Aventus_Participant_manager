@@ -8,12 +8,12 @@ import sys
 from datetime import datetime
 from read_barcode import open_camera
 import pandas as pd
+import threading
 
 
 app = Flask(__name__)
 
 app.secret_key = '2' # for flask session
-
 
 # Use a service account
 cred = credentials.Certificate('aventus-website.json')
@@ -37,6 +37,9 @@ firebaseConfig = {
 # firebase = pyrebase.initialize_app(firebaseConfig)
 # auth = firebase.auth()
 
+
+lock = threading.Lock()
+
 @app.before_request
 def before_request():
     g.df=pd.read_csv('teams.csv')
@@ -55,19 +58,21 @@ def barcode_reader():
         return render_template('barcode_reader_page.html')
     
     elif request.method=='POST':
-        team_member_id=''
         team_member_id=open_camera()
-        if len(team_member_id)>0:
-            session['team_member_id']=team_member_id
-            participant_row=g.df.loc[g.df['Team Code']==team_member_id]
+        lock.acquire()
+        lock.release()
+        # team_member_id = None
 
-            team_id=team_member_id[0:len(team_member_id)-3]
-            track=participant_row.at[participant_row.index[0], 'Project Tracks']
-            team_name=participant_row.at[participant_row.index[0], 'Team Name']
-            team_member=str(participant_row.at[participant_row.index[0], 'First Name']+' '+participant_row.at[participant_row.index[0], 'Last Name'])
-            gender=participant_row.at[participant_row.index[0], 'Gender']
-            print(team_member_id)
-            return render_template('add_entry_page.html', text=[team_id, track, team_name, team_member, gender])
+        session['team_member_id']=team_member_id
+        participant_row=g.df.loc[g.df['Team Code']==team_member_id]
+
+        team_id=team_member_id[0:len(team_member_id)-3]
+        track=participant_row.at[participant_row.index[0], 'Project Tracks']
+        team_name=participant_row.at[participant_row.index[0], 'Team Name']
+        team_member=str(participant_row.at[participant_row.index[0], 'First Name']+' '+participant_row.at[participant_row.index[0], 'Last Name'])
+        gender=participant_row.at[participant_row.index[0], 'Gender']
+        print(team_member_id)
+        return render_template('add_entry_page.html', text=[team_id, track, team_name, team_member, gender])
 
 
 
@@ -129,11 +134,15 @@ def scan_barcode():
     if request.method=='GET':
         return render_template('scan_page_first_page.html')
     elif request.method=='POST':
-        team_member_id=''
         team_member_id=open_camera()
-        if len(team_member_id)>0:
-            session['team_member_id']=team_member_id
-            return render_template('scan_page_second_page.html')
+        lock.acquire()
+        # process_output(team_member_id)
+        lock.release()
+        # team_member_id=open_camera()
+        # while team_member_id==None:
+        #     pass
+        session['team_member_id']=team_member_id
+        return render_template('scan_page_second_page.html')
 
 @app.route('/scan_update', methods=['POST'])
 def scan_update():
