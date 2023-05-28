@@ -4,7 +4,6 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 # import pyrebase
 import cv2
-import zxingcpp
 import sys
 from datetime import datetime
 from read_barcode import open_camera
