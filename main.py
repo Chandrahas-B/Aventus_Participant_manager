@@ -4,7 +4,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 # import pyrebase
 import cv2
-import sys
+import os
 from datetime import datetime
 from read_barcode import open_camera
 import pandas as pd
@@ -224,4 +224,4 @@ def status_all_team_member():
 
 
 if __name__ == '__main__':
-    app.run(debug = True)
+    app.run(debug=True, port=os.getenv("PORT", default=5000))
