@@ -15,7 +15,7 @@
 {% extends 'base.html' %}
 
 {% block head %}
-  <title>Subject Details</title>
+  <title>Status</title>
 {% endblock %}
   
 {% block body %}
@@ -61,6 +61,12 @@
                 </tr>
               </thead>
               <tbody>
+                <td td class="td-name">
+                    Master Check In
+                </td>
+                <td td class="td-name">
+                  {{ master_checkin }}
+                </td>
                 {% for j in range(status|length): %}
                   <tr>
                     <td class="td-name">
