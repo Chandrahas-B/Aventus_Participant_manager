@@ -89,7 +89,10 @@ def open_camera():
 # Call the function to start scanning QR codes from the camera
 # print(open_camera())
 def main_value_small():
-    ans=open_camera()
-    return (ans[-8:])
+    temp=open_camera()
+    ans = temp.split('=')[1].strip()
+    # li=ans.split('=')
+    return (ans)
 # print(main_value_small())
 # print(ans[-9:])
+# print(main_value_small())

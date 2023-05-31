@@ -100,7 +100,8 @@ def main_value_large():
     final_ans=[]
     temp=open_camera_for_long()
     for i in temp:
-        final_ans.append(i[-8:])
+        ans = i.split('=')[1].strip()
+        final_ans.append(ans)
     return final_ans
 
 # print(main_value_large())
