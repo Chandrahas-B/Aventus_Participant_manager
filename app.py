@@ -73,8 +73,8 @@ def signin():
                 message='Signed In'
         except auth.EmailAlreadyExistsError:
             message= 'Email already exists.'
-
-        return render_template('home_page.html', message=message)
+        
+        return redirect('/scan_barcode/'+session['uid'], message=message)
 
 
 
@@ -250,6 +250,7 @@ def scan_barcode(uid):
             return render_template('scan_page_first_page.html', message=message)
         
         elif 'user' not in session:
+          session['uid']=uid
             return render_template('sign_in_page.html')
                 # else:
                 #     message='Participant not checked in'
