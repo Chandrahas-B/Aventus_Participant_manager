@@ -126,6 +126,7 @@ def add_entry():
              'count':0
         })
         g.df.loc[g.df['UID'] == team_member_id, 'count'] = 1
+        g.df.to_csv('teams.csv', index=False)
 
         # flash('Participants successfuly registered.')
         # return render_template('add_entry.html', text=['team_id_csv', 'track_csv', 'team_name_csv', 'team_member_csv'])
@@ -168,7 +169,7 @@ def scan_barcode(uid):
 
             if count_csv==0:
                 # g.df.loc[g.df['UID'] == team_member_id, 'count'] = 1
-                g.df.to_csv('teams.csv', index=False)
+                # g.df.to_csv('teams.csv', index=False)
                 check=db.collection(track).document(team_id)
                 team_members_id=[]
                 team_members_temp=check.collections()
