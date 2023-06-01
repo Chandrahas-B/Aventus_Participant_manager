@@ -132,7 +132,7 @@ def signin():
                 member_text_add+=t1
                 # text_add+=t1
         if flag==0:
-            message="Successfully updated "+session['uid']
+            message="Successfully updated "+team_member_id
         else:
             message="Not Updated for"+" "+ member_text_add+text_for_team
         return render_template('scan_page_first_page.html', message=message)
@@ -215,7 +215,8 @@ def scan_barcode(uid):
                     member_text_add+=t1
                     # text_add+=t1
             if flag==0:
-                message="Successfully updated "+session['uid']
+                message="Successfully updated "+str(team_member_id)
+
             else:
                 message="Not Updated for"+" "+ member_text_add+text_for_team
             return render_template('scan_page_first_page.html', message=message)
