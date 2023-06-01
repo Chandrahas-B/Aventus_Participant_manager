@@ -2,13 +2,13 @@ from __future__ import division
 from flask import Flask, render_template, url_for, request, redirect, session, flash, g
 import firebase_admin
 from firebase_admin import credentials, firestore
-import cv2
+from firebase_admin import auth
 import os
 from datetime import datetime
 import pandas as pd
-import threading
-from qrcode_small import main_value_small
-from qrcode_large import main_value_large
+import pyrebase
+# from qrcode_small import main_value_small
+# from qrcode_large import main_value_large
 
 # from read_barcode import open_camera
 # from read_barcode_long_wait import open_camera_for_long
@@ -16,9 +16,8 @@ from qrcode_large import main_value_large
 app = Flask(__name__)
 
 app.secret_key = '2' # for flask session
-
 # Use a service account
-cred = credentials.Certificate('aventus-website.json')
+cred = credentials.Certificate('aventus_for_hosting.json')
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
@@ -34,13 +33,13 @@ firebaseConfig = {
   'messagingSenderId': "1004778993565",
   'appId': "1:1004778993565:web:5ccb91f7a09dede0342174",
   'measurementId': "G-LEE5266T98"
-}
+};
 
-# firebase = pyrebase.initialize_app(firebaseConfig)
-# auth = firebase.auth()
+firebase = pyrebase.initialize_app(firebaseConfig)
+auth_pyrebase = firebase.auth()
+# auth=firebase_admin.auth
 
-
-lock = threading.Lock()
+# lock = threading.Lock()
 
 @app.before_request
 def before_request():
@@ -50,41 +49,71 @@ def before_request():
 
 @app.route('/', methods = ['GET'])
 def home_page():
-        return render_template('home_page.html')
+        if 'user' in session:
+            return render_template('home_page.html')
+        else:
+            return render_template('sign_in_page.html')
 
 
-
-@app.route('/barcode_reader', methods=['GET', 'POST'])
-def barcode_reader():
+@app.route('/signin', methods=['GET', 'POST'])
+def signin():
     if request.method=='GET':
-        return render_template('barcode_reader_page.html')
-    
+        return render_template('sign_in_page.html')
     elif request.method=='POST':
+        password=request.form['password']
+        email="avirakshit2002@gmail.com"
+        try:
+            # user=auth.get_user_by_email(email)
+            user = auth_pyrebase.sign_in_with_email_and_password(email, password)
+            # auth.verify_password(user.uid, password)
+            # user=auth.sign_in_with_email_and_password(email, password)
+            if user:
+            # user=auth.sign_in_with_email_and_password(email, password)
+                session['user']=email
+                message='Signed In'
+        except auth.EmailAlreadyExistsError:
+            message= 'Email already exists.'
 
-        team_member_id=main_value_small()
-        lock.acquire()
-        lock.release()
-        # team_member_id = None
+        return render_template('home_page.html', message=message)
 
-        session['team_member_id']=team_member_id
-        participant_row=g.df.loc[g.df['UID']==team_member_id]
 
-        team_id=team_member_id[0:len(team_member_id)-3]
-        track=participant_row.at[participant_row.index[0], 'Project Tracks']
-        team_name=participant_row.at[participant_row.index[0], 'Team Name']
-        team_member=str(participant_row.at[participant_row.index[0], 'First Name']+' '+participant_row.at[participant_row.index[0], 'Last Name'])
-        gender=participant_row.at[participant_row.index[0], 'Gender']
 
-        check=db.collection(track).document(team_id)
-        team_members_id=[]
-        team_members_temp=check.collections()
-        for m in team_members_temp:
-            team_members_id.append(m.id)
-        if team_member_id in team_members_id:
-            message='Member already registered'
-            return render_template('barcode_reader_page.html', message=message)
-        # print(team_member_id)
-        return render_template('add_entry_page.html', text=[team_id, track, team_name, team_member, gender])
+
+
+
+@app.route('/barcode_reader/<uid>', methods=['GET'])
+def barcode_reader(uid):
+    # if request.method=='GET':
+        # return render_template('barcode_reader_page.html')
+    
+    if request.method=='GET':
+        if 'user' in session:
+            team_member_id=uid
+            # lock.acquire()
+            # lock.release()
+            # team_member_id = None
+
+            session['team_member_id']=team_member_id
+            participant_row=g.df.loc[g.df['UID']==team_member_id]
+
+            team_id=team_member_id[0:len(team_member_id)-3]
+            track=participant_row.at[participant_row.index[0], 'Project Tracks']
+            team_name=participant_row.at[participant_row.index[0], 'Team Name']
+            team_member=str(participant_row.at[participant_row.index[0], 'First Name']+' '+participant_row.at[participant_row.index[0], 'Last Name'])
+            gender=participant_row.at[participant_row.index[0], 'Gender']
+
+            check=db.collection(track).document(team_id)
+            team_members_id=[]
+            team_members_temp=check.collections()
+            for m in team_members_temp:
+                team_members_id.append(m.id)
+            if team_member_id in team_members_id:
+                message='Member already registered'
+                return render_template('barcode_reader_page.html', message=message)
+            # print(team_member_id)
+            return render_template('add_entry_page.html', text=[team_id, track, team_name, team_member, gender])
+        else:
+            return render_template('sign_in_page.html')
 
 
 
@@ -141,27 +170,26 @@ def add_entry():
 
 
 
-@app.route('/scan_barcode', methods=['GET','POST'])
-def scan_barcode():
+@app.route('/scan_barcode/<uid>', methods=['GET'])
+def scan_barcode(uid):
     if request.method=='GET':
-        return render_template('scan_page_first_page.html')
-    elif request.method=='POST':
-        team_member_ids=main_value_large()
-        lock.acquire()
-        # process_output(team_member_id)
-        lock.release()
-        # team_member_id=open_camera()
-        # while team_member_id==None:
-        #     pass
+        if 'user' in session:
+            # lock.acquire()
+            # process_output(team_member_id)
+            # lock.release()
+            # team_member_id=open_camera()
+            # while team_member_id==None:
+            #     pass
 
 
-        #FOR TEAM MEMBERS
-        member_text_add=''
-        #FOR TEAMS
-        text_for_team=''
-        flag=0
-        for team_member_id in team_member_ids:
-            # print(type(team_member_id))
+            #FOR TEAM MEMBERS
+            member_text_add=''
+            #FOR TEAMS
+            text_for_team=''
+            flag=0
+            team_member_id=uid
+            # for team_member_id in team_member_ids:
+                # print(type(team_member_id))
             participant_row=g.df.loc[g.df['UID']==team_member_id]
             # team_id=str(participant_row.at[participant_row.index[0], 'Team Code'])
             team_id=team_member_id[0:len(team_member_id)-3]
@@ -215,13 +243,16 @@ def scan_barcode():
                     t1=str(team_member_id)+' '
                     member_text_add+=t1
                     # text_add+=t1
-        if flag==0:
-            message="Successfully updated"
-        else:
-            message="Not Updated for"+" "+ member_text_add+text_for_team
-        return render_template('scan_page_first_page.html', message=message)
-            # else:
-            #     message='Participant not checked in'
+            if flag==0:
+                message="Successfully updated"
+            else:
+                message="Not Updated for"+" "+ member_text_add+text_for_team
+            return render_template('scan_page_first_page.html', message=message)
+        
+        elif 'user' not in session:
+            return render_template('sign_in_page.html')
+                # else:
+                #     message='Participant not checked in'
             #     return render_template('scan_page_first_page.html', message=message)
 
 

@@ -37,8 +37,8 @@
       <div class="row d-flex justify-content-center">
         <div class="row-lg-4 row-md-6 row-sm-8 ml-auto mr-auto">
 
-          <form class="form" method="POST", action="/scan_barcode">
-                <button type="submit" class="btn btn-danger btn-raised btn-lg">Scan</button>
+          <form class="form" method="/", action="GET">
+                <button type="submit" class="btn btn-danger btn-raised btn-lg">Back</button>
                 <script>
                   function callFlaskFunction() {
                       var xhr = new XMLHttpRequest();
@@ -54,9 +54,9 @@
             </div>
           </form>
 
-          <form action="/" method="GET">
+          <!-- <form action="/" method="GET">
             <button type="submit" class="btn btn-danger btn-raised btn-lg">Back</button>
-          </form>
+          </form> -->
         </div>
       </div>
     </div>
