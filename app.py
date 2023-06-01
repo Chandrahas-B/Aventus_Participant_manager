@@ -73,7 +73,7 @@ def signin():
                 message='Signed In'
         except auth.EmailAlreadyExistsError:
             message= 'Email already exists.'
-        
+       
         return redirect('/scan_barcode/'+session['uid'], message=message)
 
 
