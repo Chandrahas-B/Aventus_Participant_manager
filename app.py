@@ -167,7 +167,7 @@ def scan_barcode(uid):
 
 
             if count_csv==0:
-                g.df.loc[g.df['UID'] == team_member_id, 'count'] = 1
+                # g.df.loc[g.df['UID'] == team_member_id, 'count'] = 1
                 g.df.to_csv('teams.csv', index=False)
                 check=db.collection(track).document(team_id)
                 team_members_id=[]
