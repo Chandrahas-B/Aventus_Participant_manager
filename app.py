@@ -187,6 +187,7 @@ def scan_barcode(uid):
             text_for_team=''
             flag=0
             team_member_id=uid
+            session['uid']=uid
             # for team_member_id in team_member_ids:
                 # print(type(team_member_id))
             participant_row=g.df.loc[g.df['UID']==team_member_id]
