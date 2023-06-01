@@ -45,8 +45,4 @@ six==1.14.0
 uritemplate==3.0.1
 urllib3==1.26.5
 Werkzeug==1.0.0
-<<<<<<< HEAD
 wrapt==1.11.2
-=======
-wrapt==1.11.2
->>>>>>> a638619d777e01782ef760deb07205f83e2b57b3
