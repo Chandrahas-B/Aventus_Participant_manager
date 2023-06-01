@@ -55,6 +55,9 @@ def home_page():
             return render_template('sign_in_page.html')
 
 
+
+
+
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
     if request.method=='GET':
@@ -78,45 +81,7 @@ def signin():
 
 
 
-
-
-
-# @app.route('/barcode_reader/<uid>', methods=['GET'])
-# def barcode_reader(uid):
-#     # if request.method=='GET':
-#         # return render_template('barcode_reader_page.html')
-    
-#     if request.method=='GET':
-#         if 'user' in session:
-#             team_member_id=uid
-#             # lock.acquire()
-#             # lock.release()
-#             # team_member_id = None
-
-#             session['team_member_id']=team_member_id
-#             participant_row=g.df.loc[g.df['UID']==team_member_id]
-
-#             team_id=team_member_id[0:len(team_member_id)-3]
-#             track=participant_row.at[participant_row.index[0], 'Project Tracks']
-#             team_name=participant_row.at[participant_row.index[0], 'Team Name']
-#             team_member=str(participant_row.at[participant_row.index[0], 'First Name']+' '+participant_row.at[participant_row.index[0], 'Last Name'])
-#             gender=participant_row.at[participant_row.index[0], 'Gender']
-
-#             check=db.collection(track).document(team_id)
-#             team_members_id=[]
-#             team_members_temp=check.collections()
-#             for m in team_members_temp:
-#                 team_members_id.append(m.id)
-#             if team_member_id in team_members_id:
-#                 message='Member already registered'
-#                 return render_template('barcode_reader_page.html', message=message)
-#             # print(team_member_id)
-#             return render_template('add_entry_page.html', text=[team_id, track, team_name, team_member, gender])
-#         else:
-#             return render_template('sign_in_page.html')
-
-
-
+# FOR ENTERING MASTER CHECKIN SECOND PAGE
 @app.route('/add_entry', methods=['POST'])
 def add_entry():
     # if request.method=='GET':
@@ -128,13 +93,13 @@ def add_entry():
         # results=open_camera()
         # team_member_id=str(results.text)
         # team_member_id=session[team_member_id]
-
         team_member_id=session['uid']
         team_name= request.form['team_name']
         team_member= request.form['team_member']
         track=request.form['track']
         gender=request.form['gender']
         team_id=request.form['team_id']
+        college=request.form['college']
         college_id=request.form.get('college_id')
         consent_form=request.form.get('consent_form')
         
@@ -160,15 +125,16 @@ def add_entry():
              'gender':gender,
              'college_id': final_college_id,
              'consert_form': final_consent_form,
+             'college':college,
              'count':0
         })
         # flash('Participants successfuly registered.')
         # return render_template('add_entry.html', text=['team_id_csv', 'track_csv', 'team_name_csv', 'team_member_csv'])
-        message='Participants successfuly registered.'
+        message='Participant successfuly registered.'
         return render_template('barcode_reader_page.html',message=message)
 
 
-
+#FOR CHECKING IN CHECK OUT MAIN LINK
 @app.route('/scan_barcode/<uid>', methods=['GET'])
 def scan_barcode(uid):
     if request.method=='GET':
@@ -195,6 +161,7 @@ def scan_barcode(uid):
             # team_id=str(participant_row.at[participant_row.index[0], 'Team Code'])
             team_name=participant_row.at[participant_row.index[0], 'Team Name']
             gender=participant_row.at[participant_row.index[0], 'Gender']
+            college=participant_row.at[participant_row.index[0], 'college']
             team_id=team_member_id[0:len(team_member_id)-3]
             track=participant_row.at[participant_row.index[0], 'Project Tracks']
             team_member=str(participant_row.at[participant_row.index[0], 'First Name']+' '+participant_row.at[participant_row.index[0], 'Last Name'])
@@ -212,7 +179,7 @@ def scan_barcode(uid):
                     message='Member already registered'
                     return render_template('barcode_reader_page.html', message=message)
                 # print(team_member_id)
-                return render_template('add_entry_page.html', text=[team_id, track, team_name, team_member, gender])
+                return render_template('add_entry_page.html', text=[team_id, track, team_name, team_member, gender, team_member_id, college])
 
             else:
                 available_teams=[]
@@ -278,7 +245,7 @@ def scan_barcode(uid):
             #     return render_template('scan_page_first_page.html', message=message)
 
 
-#NOT NEEDED
+#NOT NEEDED USED FOR CHECKIN CHECKOUT SECOND PAGE
 @app.route('/scan_update', methods=['POST'])
 def scan_update():
     # if request.method=='':
@@ -306,7 +273,7 @@ def scan_update():
     return render_template('scan_page_first_page.html', message=message)
 
 
-
+#STATUS OF ALL TEAMS
 @app.route('/status_first', methods=['GET', 'POST'])
 def status_first():
     if request.method=='GET':
