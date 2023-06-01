@@ -73,7 +73,6 @@ def signin():
                 message='Signed In'
         except auth.EmailAlreadyExistsError:
             message= 'Email already exists.'
-        
         flag=0
         team_member_id=session['uid']
         # for team_member_id in team_member_ids:
@@ -132,10 +131,11 @@ def signin():
                 member_text_add+=t1
                 # text_add+=t1
         if flag==0:
-            message="Successfully updated "+team_member_id
+            message="Successfully updated"
         else:
             message="Not Updated for"+" "+ member_text_add+text_for_team
         return render_template('scan_page_first_page.html', message=message)
+        
 
         # return render_template('home_page.html', message=message)
 
@@ -215,14 +215,14 @@ def scan_barcode(uid):
                     member_text_add+=t1
                     # text_add+=t1
             if flag==0:
-                message="Successfully updated "+str(team_member_id)
+                message="Successfully updated"
 
             else:
                 message="Not Updated for"+" "+ member_text_add+text_for_team
             return render_template('scan_page_first_page.html', message=message)
         
         elif 'user' not in session:
-            session['uid']=uid
+            # session['uid']=uid
             return render_template('sign_in_page.html')
                 # else:
                 #     message='Participant not checked in'
