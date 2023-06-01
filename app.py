@@ -55,9 +55,6 @@ def home_page():
             return render_template('sign_in_page.html')
 
 
-
-
-
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
     if request.method=='GET':
