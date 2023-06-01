@@ -30,12 +30,12 @@
     </div>
   </nav>
   <div class="page-header header-filter" style="background-image: url('../static/img/desk_chair1.jpg'); background-size: cover; background-position: top center;">
-    <h3 class="card-title text-info">{{ message }}</h3>
     <div class="container">
       <div class="row">
         <div class="row-lg-4 row-md-6 row-sm-8 ml-auto mr-auto">
+          <h3 class="card-title text-info">{{ message }}</h3>
 
-          <form class="form" method="POST", action="/barcode_reader">
+          <!-- <form class="form" method="POST", action="/barcode_reader">
                 <button type="submit" class="btn btn-danger btn-raised btn-lg">Scan</button>
                 <script>
                   function callFlaskFunction() {
@@ -49,11 +49,11 @@
                       xhr.send();
                   }
               </script>
-            </form>
+            </form> -->
             
-            <form action="/" method="GET">
+            <!-- <form action="/" method="GET">
               <button type="submit" class="btn btn-danger btn-raised btn-lg">Back</button>
-            </form>
+            </form> -->
           </div>
         </div>
       </div>

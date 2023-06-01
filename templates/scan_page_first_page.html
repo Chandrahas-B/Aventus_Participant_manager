@@ -30,14 +30,14 @@
     </div>
   </nav>
   <div class="page-header header-filter" style="background-image: url('../static/img/desk_chair1.jpg'); background-size: cover; background-position: top center;">
-  <div class="pt-9">
-    <h3 class="card-title text-info">{{ message }}</h3>
-  </div>
     <div class="container">
       <div class="row d-flex justify-content-center">
         <div class="row-lg-4 row-md-6 row-sm-8 ml-auto mr-auto">
+          <div class="pt-9">
+            <h3 class="card-title text-danger">{{ message }}</h3>
+          </div>
 
-          <form class="form" method="/", action="GET">
+          <!-- <form class="form" method="/", action="GET">
                 <button type="submit" class="btn btn-danger btn-raised btn-lg">Back</button>
                 <script>
                   function callFlaskFunction() {
@@ -51,8 +51,8 @@
                       xhr.send();
                   }
               </script>
-            </div>
-          </form>
+            </form> -->
+          </div>
 
           <!-- <form action="/" method="GET">
             <button type="submit" class="btn btn-danger btn-raised btn-lg">Back</button>

@@ -1,7 +1,7 @@
 import qrcode
 
 # Text or data to encode in the QR code
-data = "Hello, QR Code!"
+data = "https://aventus-participant-manager.onrender.com/status_first?"
 
 # Create a QR code instance
 qr = qrcode.QRCode(version=1, box_size=10, border=4)
@@ -16,4 +16,4 @@ qr.make(fit=True)
 qr_image = qr.make_image(fill="black", back_color="white")
 
 # Save the QR code image
-qr_image.save("qr_code.png")
+qr_image.save("team_status.png")

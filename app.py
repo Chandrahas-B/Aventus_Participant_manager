@@ -55,6 +55,9 @@ def home_page():
             return render_template('sign_in_page.html')
 
 
+
+
+
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
     if request.method=='GET':
@@ -73,50 +76,12 @@ def signin():
                 message='Signed In'
         except auth.EmailAlreadyExistsError:
             message= 'Email already exists.'
-
-        return render_template('home_page.html', message=message)
-
-
+        return redirect('/scan_barcode/'+session['uid'])
+        # return render_template('home_page.html', message=message)
 
 
 
-
-@app.route('/barcode_reader/<uid>', methods=['GET'])
-def barcode_reader(uid):
-    # if request.method=='GET':
-        # return render_template('barcode_reader_page.html')
-    
-    if request.method=='GET':
-        if 'user' in session:
-            team_member_id=uid
-            # lock.acquire()
-            # lock.release()
-            # team_member_id = None
-
-            session['team_member_id']=team_member_id
-            participant_row=g.df.loc[g.df['UID']==team_member_id]
-
-            team_id=team_member_id[0:len(team_member_id)-3]
-            track=participant_row.at[participant_row.index[0], 'Project Tracks']
-            team_name=participant_row.at[participant_row.index[0], 'Team Name']
-            team_member=str(participant_row.at[participant_row.index[0], 'First Name']+' '+participant_row.at[participant_row.index[0], 'Last Name'])
-            gender=participant_row.at[participant_row.index[0], 'Gender']
-
-            check=db.collection(track).document(team_id)
-            team_members_id=[]
-            team_members_temp=check.collections()
-            for m in team_members_temp:
-                team_members_id.append(m.id)
-            if team_member_id in team_members_id:
-                message='Member already registered'
-                return render_template('barcode_reader_page.html', message=message)
-            # print(team_member_id)
-            return render_template('add_entry_page.html', text=[team_id, track, team_name, team_member, gender])
-        else:
-            return render_template('sign_in_page.html')
-
-
-
+# FOR ENTERING MASTER CHECKIN SECOND PAGE
 @app.route('/add_entry', methods=['POST'])
 def add_entry():
     # if request.method=='GET':
@@ -128,13 +93,13 @@ def add_entry():
         # results=open_camera()
         # team_member_id=str(results.text)
         # team_member_id=session[team_member_id]
-
-        team_member_id=session['team_member_id']
+        team_member_id=session['uid']
         team_name= request.form['team_name']
         team_member= request.form['team_member']
         track=request.form['track']
         gender=request.form['gender']
         team_id=request.form['team_id']
+        college=request.form['college']
         college_id=request.form.get('college_id')
         consent_form=request.form.get('consent_form')
         
@@ -160,16 +125,16 @@ def add_entry():
              'gender':gender,
              'college_id': final_college_id,
              'consert_form': final_consent_form,
+             'college':college,
              'count':0
         })
         # flash('Participants successfuly registered.')
         # return render_template('add_entry.html', text=['team_id_csv', 'track_csv', 'team_name_csv', 'team_member_csv'])
-        message='Participants successfuly registered.'
-        session.clear()
+        message='Participant successfuly registered.'
         return render_template('barcode_reader_page.html',message=message)
 
 
-
+#FOR CHECKING IN CHECK OUT MAIN LINK
 @app.route('/scan_barcode/<uid>', methods=['GET'])
 def scan_barcode(uid):
     if request.method=='GET':
@@ -188,80 +153,104 @@ def scan_barcode(uid):
             text_for_team=''
             flag=0
             team_member_id=uid
+            session['uid']=uid
             # for team_member_id in team_member_ids:
                 # print(type(team_member_id))
             participant_row=g.df.loc[g.df['UID']==team_member_id]
+            count_csv=participant_row.at[participant_row.index[0], 'count']
             # team_id=str(participant_row.at[participant_row.index[0], 'Team Code'])
+            team_name=participant_row.at[participant_row.index[0], 'Team Name']
+            gender=participant_row.at[participant_row.index[0], 'Gender']
+            college=participant_row.at[participant_row.index[0], 'college']
             team_id=team_member_id[0:len(team_member_id)-3]
             track=participant_row.at[participant_row.index[0], 'Project Tracks']
             team_member=str(participant_row.at[participant_row.index[0], 'First Name']+' '+participant_row.at[participant_row.index[0], 'Last Name'])
-            
-            
-            available_teams=[]
-            available_teams_temp = db.collection(track).stream()
-            for team in available_teams_temp:
-                available_teams.append(team.id)
-                
-            if team_id not in available_teams:
-                flag=1
-                t2='\n'+str(team_id)+' ,not checked in.'
-                text_for_team+=t2
-            else:
+
+
+            if count_csv==0:
+                g.df.loc[g.df['UID'] == team_member_id, 'count'] = 1
+                g.df.to_csv('teams.csv', index=False)
                 check=db.collection(track).document(team_id)
-                team_member_temp=check.collections()
-                team_members=[]
+                team_members_id=[]
+                team_members_temp=check.collections()
+                for m in team_members_temp:
+                    team_members_id.append(m.id)
+                if team_member_id in team_members_id:
+                    message='Member already registered'
+                    return render_template('barcode_reader_page.html', message=message)
+                # print(team_member_id)
+                return render_template('add_entry_page.html', text=[team_id, track, team_name, team_member, gender, team_member_id, college])
 
-                for i in team_member_temp:
-                    team_members.append(i.id)
-                if team_member_id in team_members:
-
-                    now = datetime.now()
-                    lastseen_time=now.strftime("%d/%m/%Y %H:%M:%S")
-                    doc=db.collection(track).document(team_id).collection(team_member_id).document(team_member).get()
-                    count=doc.get('count')
-                    if count==0:
-                        db.collection(track).document(team_id).collection(team_member_id).document(team_member).update({
-                        'status1':['IN', lastseen_time],
-                        'count':1
-                        })
-                    elif count%2==1:
-                        final_count=count+1
-                        final_status='status'+str(final_count)
-                        db.collection(track).document(team_id).collection(team_member_id).document(team_member).update({
-                        final_status:['OUT', lastseen_time],
-                        'count':final_count
-                        })
-                    elif count%2==0 and count!=0:
-                        final_count=count+1
-                        final_status='status'+str(final_count)
-                        db.collection(track).document(team_id).collection(team_member_id).document(team_member).update({
-                        final_status:['IN', lastseen_time],
-                        'count':final_count
-                        })
-                else:
-                    flag=1
-                    t1=str(team_member_id)+' '
-                    member_text_add+=t1
-                    # text_add+=t1
-            if flag==0:
-                message="Successfully updated"
             else:
-                message="Not Updated for"+" "+ member_text_add+text_for_team
-            return render_template('scan_page_first_page.html', message=message)
-        
+                available_teams=[]
+                available_teams_temp = db.collection(track).stream()
+                for team in available_teams_temp:
+                    available_teams.append(team.id)
+                    
+                if team_id not in available_teams:
+                    flag=1
+                    t2='\n'+str(team_id)+' ,not checked in.'
+                    text_for_team+=t2
+                else:
+                    check=db.collection(track).document(team_id)
+                    team_member_temp=check.collections()
+                    team_members=[]
+
+                    for i in team_member_temp:
+                        team_members.append(i.id)
+                    if team_member_id in team_members:
+
+                        now = datetime.now()
+                        lastseen_time=now.strftime("%d/%m/%Y %H:%M:%S")
+                        doc=db.collection(track).document(team_id).collection(team_member_id).document(team_member).get()
+                        count=doc.get('count')
+                        if count==0:
+                            s='IN'
+                            db.collection(track).document(team_id).collection(team_member_id).document(team_member).update({
+                            'status1':['IN', lastseen_time],
+                            'count':1
+                            })
+                        elif count%2==1:
+                            final_count=count+1
+                            final_status='status'+str(final_count)
+                            s='OUT'
+                            db.collection(track).document(team_id).collection(team_member_id).document(team_member).update({
+                            final_status:['OUT', lastseen_time],
+                            'count':final_count
+                            })
+                        elif count%2==0 and count!=0:
+                            final_count=count+1
+                            final_status='status'+str(final_count)
+                            s='IN'
+                            db.collection(track).document(team_id).collection(team_member_id).document(team_member).update({
+                            final_status:['IN', lastseen_time],
+                            'count':final_count
+                            })
+                    else:
+                        flag=1
+                        t1=str(team_member_id)+' '
+                        member_text_add+=t1
+                        # text_add+=t1
+                if flag==0:
+                    message="Successfully updated "+str(s)+' '+str(team_member_id)
+                else:
+                    message="Not Updated for"+" "+ member_text_add+text_for_team
+                return render_template('scan_page_first_page.html', message=message)
+            
         elif 'user' not in session:
+            session['uid']=uid
             return render_template('sign_in_page.html')
-                # else:
+                    # else:
                 #     message='Participant not checked in'
             #     return render_template('scan_page_first_page.html', message=message)
 
 
-#NOT NEEDED
+#NOT NEEDED USED FOR CHECKIN CHECKOUT SECOND PAGE
 @app.route('/scan_update', methods=['POST'])
 def scan_update():
     # if request.method=='':
     #     return render_template('scan_page.html')
-    team_member_id=session['team_member_id']
+    team_member_id=session['uid']
     status=request.form['status']
     participant_row=g.df.loc[g.df['UID']==team_member_id]
     team_id=team_member_id[0:len(team_member_id)-3]
@@ -280,12 +269,11 @@ def scan_update():
             last_seen:[status, lastseen_time],
             'count':final_count
         })
-    session.clear()
     message='The Status has been updated.'
     return render_template('scan_page_first_page.html', message=message)
 
 
-
+#STATUS OF ALL TEAMS
 @app.route('/status_first', methods=['GET', 'POST'])
 def status_first():
     if request.method=='GET':
@@ -338,4 +326,4 @@ def status_all_team_member():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=os.getenv("PORT", default=3000))
+    app.run(debug=True)
