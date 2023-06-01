@@ -34,7 +34,7 @@
       <div class="row">
         <div class="col-lg-4 col-md-6 col-sm-8 ml-auto mr-auto">
         </div>
-        <form class="form" method="POST", action="/barcode_reader">
+        <!-- <form class="form" method="POST", action="/barcode_reader">
           <button type="submit" class="btn btn-danger btn-raised btn-lg">Scan</button>
           <script>
             function callFlaskFunction() {
@@ -48,8 +48,8 @@
                 xhr.send();
             }
         </script>
-      </div>
-    </form>
+      </form> -->
+    </div>
 
           <form class="form" method="POST" action="/add_entry">
             <div class="card card-login">
@@ -67,6 +67,18 @@
                     {% endfor %}
                   {% endif %}
                 {% endwith %}
+                <span class="bmd-form-group">
+                  <div class="input-group" style="display: flex; flex-direction: column;">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">
+                        Participant-ID
+                      </span>
+                    </div>
+                    <div>
+                      <input style="width: 90%; margin-left: 15px;" name="participant_id" value="{{ text[5] }}" type="text" class="form-control" placeholder="TeamID" required>
+                    </div>
+                  </div>
+                </span>
 
                 <span class="bmd-form-group">
                   <div class="input-group" style="display: flex; flex-direction: column;">
@@ -137,6 +149,19 @@
                   <div class="input-group" style="display: flex; flex-direction: column;">
                     <div class="input-group-prepend">
                       <span class="input-group-text">
+                       College
+                      </span>
+                    </div>
+                    <div>
+                      <input style="width: 90%; margin-left: 15px;" name="college" value="{{ text[6] }}" type="text" class="form-control" placeholder="college" required>
+                    </div>
+                  </div>
+                </span>
+
+                <span class="bmd-form-group">
+                  <div class="input-group" style="display: flex; flex-direction: column;">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">
                        Collge ID Card Verification  
                        <input style="width: 40px; height: 25px;" type="checkbox" id="college_id" name="college_id" value="college_id">
                       </span>
@@ -175,9 +200,9 @@
               <label>Forgot password?</label>
               <a href="/forgot_password" style="color: #f44336;">Click here</a>
             </div> -->
-            <form action="/barcode_reader" method="GET">
+            <!-- <form action="/barcode_reader" method="GET">
               <button type="submit" class="btn btn-danger btn-raised btn-lg">Back</button>
-            </form>
+            </form> -->
           </div>
         </div>
       </div>
