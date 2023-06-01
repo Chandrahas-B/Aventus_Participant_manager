@@ -125,6 +125,8 @@ def add_entry():
              'college':college,
              'count':0
         })
+        g.df.loc[g.df['UID'] == team_member_id, 'count'] = 1
+
         # flash('Participants successfuly registered.')
         # return render_template('add_entry.html', text=['team_id_csv', 'track_csv', 'team_name_csv', 'team_member_csv'])
         message='Participant successfuly registered.'
