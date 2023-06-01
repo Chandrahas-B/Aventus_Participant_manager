@@ -338,4 +338,4 @@ def status_all_team_member():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=os.getenv("PORT", default=3000))
+    app.run(debug=False)
