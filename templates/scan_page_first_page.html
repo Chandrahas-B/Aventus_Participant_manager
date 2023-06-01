@@ -38,19 +38,7 @@
         <div class="row-lg-4 row-md-6 row-sm-8 ml-auto mr-auto">
 
           <form class="form" method="/", action="GET">
-                <button type="submit" class="btn btn-danger btn-raised btn-lg">Back</button>
-                <script>
-                  function callFlaskFunction() {
-                      var xhr = new XMLHttpRequest();
-                      xhr.open('POST', '/scan_barcode', true);
-                      xhr.onload = function() {
-                          if (xhr.status === 200) {
-                              console.log(xhr.responseText);
-                          }
-                      };
-                      xhr.send();
-                  }
-              </script>
+           <button type="submit" class="btn btn-danger btn-raised btn-lg">Back</button>
             </div>
           </form>
 
