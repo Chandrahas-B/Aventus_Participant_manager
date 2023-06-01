@@ -165,7 +165,6 @@ def add_entry():
         # flash('Participants successfuly registered.')
         # return render_template('add_entry.html', text=['team_id_csv', 'track_csv', 'team_name_csv', 'team_member_csv'])
         message='Participants successfuly registered.'
-        session.clear()
         return render_template('barcode_reader_page.html',message=message)
 
 
@@ -283,7 +282,7 @@ def scan_barcode(uid):
 def scan_update():
     # if request.method=='':
     #     return render_template('scan_page.html')
-    team_member_id=session['team_member_id']
+    team_member_id=session['uid']
     status=request.form['status']
     participant_row=g.df.loc[g.df['UID']==team_member_id]
     team_id=team_member_id[0:len(team_member_id)-3]
@@ -302,7 +301,6 @@ def scan_update():
             last_seen:[status, lastseen_time],
             'count':final_count
         })
-    session.clear()
     message='The Status has been updated.'
     return render_template('scan_page_first_page.html', message=message)
 
@@ -360,4 +358,4 @@ def status_all_team_member():
 
 
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=True)
